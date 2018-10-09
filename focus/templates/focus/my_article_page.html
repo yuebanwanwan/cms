@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ article.title }}</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+           $("#")
+        });
+        //https://zhidao.baidu.com/question/60814475.html?qbl=relate_question_4&word=%BB%F1%C8%A1%B4%A5%B7%A2JS%B5%C4%D4%AA%CB%D8获取触发js的元素
+        function get_comment_comment(obj) {
+            //alert("Hello word!")
+            id = obj.name
+            //alert(id)
+
+                //https://www.jb51.net/article/52711.htm用法链接,获取动态JQ选择器.
+                    $.getJSON("/focus/"+id+"/replys/",function (data) {
+                        //alert("4")
+                        //data.replys
+                        for(var i=0;i<data.length;i++){
+                            //确定已拿到数据
+                            //alert(data[i])
+                            //将数据渲染到页面上
+                            $("div[id="+id+"]").append('<span class="label label-primary" style="color:white">' + '用户:' + data[i][0] + '</span></br>')
+                            $("div[id="+id+"]").append('<span class="label label-info" style="color:green">' + data[i][1] + '</span></br>')
+
+                        }
+                    })
+        }
+    </script>
+
+
+</head>
+<body>
+<div class="container">
+    <!--Content-->
+    <div class="row">
+        <div class="col-md-12">
+            <h2 style="color:green">{{ article.title }}</h2>
+               <p class="pull-left">
+                 <span class="label label-primary">{{ article.column }}</span>
+                 <span class="label label-success">{{ article.pub_date | date:"j M" }}</span>
+                 <span class="label label-info">{{ article.author }}</span>
+               </p>
+               <p><hr style="background-color: cyan"></p>
+               <p>{{ content | safe }}</p>
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">关于该文章的基本信息</h3>
+                    <div class="panel-body">
+                         <span class="label label-primary"><a id="getcomments" style="color: white" href="">{{ comments.count }}条评论</a></span>
+                         <span class="label label-success"><a href="">{{ article.keep_num }}个用户喜欢</a></span>
+                         <span class="label label-info"><a href="/focus/{{ article.id }}/get_poll_article/">{{ article.poll_num }}个用户点赞</a></span>
+                        {% if ispoll %}
+                        <span class="label label-info">您已点赞</span>
+                        {% endif %}
+                        <button class="pull-right btn btn-primary btn-sm" data-toggle="modal" data-target="#replyModal" style="margin-right: 20px">回复</button>
+                        <!--模态框-->
+                        <div class="modal fade" id="replyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+		                        <div class="modal-content">
+			                        <div class="modal-header">
+                                        <!--此乃右上角的X(关闭)按钮-->
+				                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					                        &times;
+				                        </button>
+				                    <h4 class="modal-title" id="myModalLabel">
+					                    回复文章
+				                    </h4>
+			                        </div>
+                                <form method="post" action="/focus/{{ article.id }}/comment/" enctype="multipart/form-data">
+			                        <div class="modal-body">
+{#				                        <input type="text" placeholder="在这里输入评论" id="comment{{ comment.id }}">#}
+{#                                        <div style="padding: 100px 100px 10px;">#}
+{#                                            <form class="bs-example bs-example-form" role="form">#}
+{#                                                <div class="input-group input-group-lg">#}
+{#                                                    <input type="text" class="form-control" placeholder="Twitterhandle">#}
+{#                                                </div>#}
+{#                                            </form>#}
+{#                                        </div>#}
+{#                                         <input type="text" class="form-control" placeholder="请输入评论">#}
+{#                                        <form method="post" action="/focus/{{ request.user.id }}/{{ comment.id }}/comment_comment/" enctype="multipart/form-data">#}
+                                            {% csrf_token %}
+                                            {{ commentform.as_p }}
+{#                                            <div class="form-group">#}
+{#                                                <input id="articleid" name="articleid" type="hidden" value="{{ article.id }}">#}
+{#                                                <input id="postcomment" name="postcomment" type="text" class="form-control" placeholder="请输入评论">#}
+{#                                                <input id="submit" type="submit" value="Submit">#}
+{#                                            </div>#}
+
+			                        </div>
+
+			                        <div class="modal-footer">
+				                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                                            关闭
+				                        </button>
+                                        <!--点击该按钮时会提交<div class="modal-body">中表单的内容-->
+                                        <button type="submit" class="btn btn-primary">
+{#					                        <a href="/focus/{{ request.user }}/{{ comment.id }}/comment_comment/">提交</a>#}
+                                            提交
+				                        </button>
+			                        </div>
+                                </form>
+		                        </div><!-- /.modal-content -->
+	                        </div><!-- /.modal -->
+                        </div><!--end Modal-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Comment-->
+    {% for comment in comments %}
+    <div class="row">
+        <div class="col-md-12">
+            <h5 style="color:green">评论</h5>
+            <p id="comments" class="pull-left">
+                <div class="panel panel-success">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="color: green">{{ comment.user }}</h5>
+                    </div>
+                    <div class="panel-body">
+                        <span  style="color: black">{{ comment.content }}</span><br><hr>
+{#                        <sapn class="label label-info" style="color: cornsilk"><a href="/focus/{{ comment.id }}/{{ article.id }}/">{{ comment.poll_num }}个赞</a></sapn>#}
+{#                        <sapn class="label label-success" style="color: green">发表于:{{ comment.pub_date }}</sapn>#}
+                        {% if comment in is_poll_comments %}
+                        <sapn class="label label-info" style="color: cornsilk"><a href="">{{ comment.poll_num }}个赞,您以点赞</a></sapn>
+                        {% else %}
+                        <sapn class="label label-info" style="color: cornsilk"><a href="/focus/{{ comment.id }}/{{ article.id }}/">{{ comment.poll_num }}个赞</a></sapn>
+                        {% endif %}
+                        <sapn class="label label-success" style="color: green">发表于:{{ comment.pub_date }}</sapn>
+                        <input type="hidden" name="user" value="{{ request.user }}" />
+                        <input type="hidden" name="commentid" value="{{ comment.id }}" />
+                        <input type="hidden" name="articleid" value="{{ article.id }}" />
+{#                        <span class="pull-right"><a id="huifu{{ comment.id }}" href="" style="color: deepskyblue;" data-toggle="popover" title="Example popover">回复</a></span>#}
+                        <button name="{{ comment.id }}" class="pull-right btn btn-primary btn-sm" onclick="get_comment_comment(this)"><a style="color: white">查看回复</a></button>
+                        <!--按钮触发模态框-->
+                        <button class="pull-right btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal{{ comment.id }}" style="margin-right: 20px">回复</button>
+                        <!--模态框-->
+                        <div class="modal fade" id="myModal{{ comment.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+		                        <div class="modal-content">
+			                        <div class="modal-header">
+				                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					                        &times;
+				                    </button>
+				                    <h4 class="modal-title" id="myModalLabel">
+					                    回复评论
+				                    </h4>
+			                        </div>
+                                <form method="post" action="/focus/{{ request.user.id }}/{{ comment.id }}/comment_comment/" enctype="multipart/form-data">
+			                        <div class="modal-body">
+{#				                        <input type="text" placeholder="在这里输入评论" id="comment{{ comment.id }}">#}
+{#                                        <div style="padding: 100px 100px 10px;">#}
+{#                                            <form class="bs-example bs-example-form" role="form">#}
+{#                                                <div class="input-group input-group-lg">#}
+{#                                                    <input type="text" class="form-control" placeholder="Twitterhandle">#}
+{#                                                </div>#}
+{#                                            </form>#}
+{#                                        </div>#}
+{#                                         <input type="text" class="form-control" placeholder="请输入评论">#}
+{#                                        <form method="post" action="/focus/{{ request.user.id }}/{{ comment.id }}/comment_comment/" enctype="multipart/form-data">#}
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <input id="articleid" name="articleid" type="hidden" value="{{ article.id }}">
+                                                <input id="postcomment" name="postcomment" type="text" class="form-control" placeholder="请输入评论">
+{#                                                <input id="submit" type="submit" value="Submit">#}
+                                            </div>
+
+			                        </div>
+
+			                        <div class="modal-footer">
+				                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                                            关闭
+				                        </button>
+                                        <!--点击该按钮时会提交<div class="modal-body">中表单的内容-->
+                                        <button type="submit" class="btn btn-primary">
+{#					                        <a href="/focus/{{ request.user }}/{{ comment.id }}/comment_comment/">提交</a>#}
+                                            提交
+				                        </button>
+			                        </div>
+                                </form>
+		                        </div><!-- /.modal-content -->
+	                        </div><!-- /.modal -->
+                        </div>
+                            <!--评论还是放在panel-body里比较好-->
+                            <div id="{{ comment.id }}">
+
+                            </div>
+                    </div>
+                </div>
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    $(document).ready(function () {
+        $("#getcomments").click(function () {
+            //此处的问题是article.id不能这样传
+            $.getJSON("/focus/{{ article.id }}/get_comments/",function (ret) {
+                $("#comments").append('<p>6666666666</p>')
+                for(var i=0;i<ret.length-1;i++){
+                    $("#comments").append('<span class="label label-primary">' + ret[i][0] + '</span>')
+                }
+            })
+        });
+        $("#huifu1").click(function () {
+            $("#1").append('<div style="padding: 100px 100px 10px;">\n' +
+                '    <form class="bs-example bs-example-form" role="form">\n' +
+                '        <div class="input-group input-group-lg">\n' +
+                '            <span class="input-group-addon" style="color:green">回复评论</span>\n' +
+                '            <input type="text" class="form-control" placeholder="Twitterhandle">\n' +
+                '        </div>\n' +
+                '        <br>\n' +
+                '    </form>\n' +
+                '</div>')
+        });
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
